@@ -1,10 +1,10 @@
-import { useContext } from "react";
-import FeedbackContext from "../context/FeedbackContext";
 import { FaTimes, FaEdit } from "react-icons/fa";
-import React from "react";
+import { useContext } from "react";
+import PropTypes from "prop-types";
 import Card from "./shared/Card";
+import FeedbackContext from "../context/FeedbackContext";
 
-function Feedbackitem({ item }) {
+function FeedbackItem({ item }) {
   const { deleteFeedback, editFeedback } = useContext(FeedbackContext);
 
   return (
@@ -21,4 +21,8 @@ function Feedbackitem({ item }) {
   );
 }
 
-export default Feedbackitem;
+FeedbackItem.propTypes = {
+  item: PropTypes.object.isRequired,
+};
+
+export default FeedbackItem;

@@ -1,19 +1,18 @@
-import { useContext, useEffect } from "react";
-import FeedbackContext from "../context/FeedbackContext";
-import React from "react";
+import { useState, useContext, useEffect } from "react";
+import RatingSelect from "./RatingSelect";
 import Card from "./shared/Card";
 import Button from "./shared/Button";
-import RatingSelect from "./RatingSelect";
-import { useState } from "react";
+import FeedbackContext from "../context/FeedbackContext";
 
-function FeedbackForm({ handleAdd }) {
+function FeedbackForm() {
   const [text, setText] = useState("");
-  const [rating, setRating] = useState("");
+  const [rating, setRating] = useState(10);
   const [btnDisabled, setBtnDisabled] = useState(true);
   const [message, setMessage] = useState("");
 
   const { addFeedback, feedbackEdit, updateFeedback } =
     useContext(FeedbackContext);
+
   useEffect(() => {
     if (feedbackEdit.edit === true) {
       setBtnDisabled(false);
@@ -21,20 +20,25 @@ function FeedbackForm({ handleAdd }) {
       setRating(feedbackEdit.item.rating);
     }
   }, [feedbackEdit]);
-  const handleTextChange = (e) => {
-    if (text === "") {
-      setBtnDisabled(true);
-      setMessage(null);
-    } else if (text !== "" && text.trim().length <= 10) {
-      setBtnDisabled(true);
-      setMessage("Text must me atleast 10 characters");
-    } else {
-      setBtnDisabled(false);
-      setMessage(null);
-    }
 
-    setText(e.target.value);
-  };
+  // NOTE: This should be checking input value not state as state won't be the updated value until the next render of the component
+
+  // prettier-ignore
+  const handleTextChange = ({ target: { value } }) => { // 👈  get the value
+    if (value === '') {
+      setBtnDisabled(true)
+      setMessage(null)
+      
+  // prettier-ignore
+    } else if (value.trim().length < 10) { // 👈 check for less than 10
+      setMessage('Text must be at least 10 characters')
+      setBtnDisabled(true)
+    } else {
+      setMessage(null)
+      setBtnDisabled(false)
+    }
+    setText(value)
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,19 +54,19 @@ function FeedbackForm({ handleAdd }) {
         addFeedback(newFeedback);
       }
 
+      // NOTE: reset to default state after submission
+      setBtnDisabled(true); // 👈  add this line to reset disabled
+      setRating(10); //👈 add this line to set rating back to 10
       setText("");
     }
   };
 
+  // NOTE: pass selected to RatingSelect so we don't need local duplicate state
   return (
     <Card>
       <form onSubmit={handleSubmit}>
         <h2>How would you rate your service with us?</h2>
-        <RatingSelect
-          select={(rating) => {
-            setRating(rating);
-          }}
-        />
+        <RatingSelect select={setRating} selected={rating} />
         <div className="input-group">
           <input
             onChange={handleTextChange}
